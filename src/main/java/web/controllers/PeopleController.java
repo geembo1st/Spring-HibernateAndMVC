@@ -1,22 +1,59 @@
 package web.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import web.model.User;
+import web.service.UserService;
 
 @Controller
+@RequestMapping("/people")
 public class PeopleController {
-    @GetMapping(value = "/")
-    public String printWelcome(ModelMap model) {
-        List<String> messages = new ArrayList<>();
-        messages.add("Hello!");
-        messages.add("I'm Spring MVC application");
-        messages.add("5.2.0 version by sep'19 ");
-        model.addAttribute("messages", messages);
-        return "hello";
+    @Autowired
+    UserService userService;
+
+    @GetMapping("/new")
+    public String createUser(Model model) {
+        model.addAttribute("user", new User());
+        return "new";
+    }
+
+    @PostMapping()
+    public String createUser(@ModelAttribute("user") User user) {
+        userService.addUser(user);
+        return "redirect:/people";
+    }
+
+    @GetMapping("/find")
+    public String showPersonById(@RequestParam(value = "id", required = true) Long id, Model model) {
+        User user = userService.showUserById(id);
+        model.addAttribute("user", user);
+        return "people";
+    }
+
+    @GetMapping()
+    public String showPeople(Model model) {
+            model.addAttribute("people", userService.showPeople());
+        return "people";
+    }
+
+    @GetMapping("/find/edit")
+    public String edit(@RequestParam(value = "id", required = true) Long id, Model model) {
+        User user = userService.showUserById(id);
+        model.addAttribute("user", user);
+        return "edit";
+    }
+
+    @PatchMapping("/find/edit")
+    public String update(@ModelAttribute("user") User user, @RequestParam(value = "id", required = true) Long id) {
+        userService.updateUser(user.getId(), user);
+        return "redirect:/people";
+    }
+
+    @DeleteMapping("/find/edit")
+    public String delete(@ModelAttribute("user") User user, @RequestParam(value = "id", required = true) Long id) {
+        userService.deleteUserById(user.getId());
+        return "redirect:/people";
     }
 }
