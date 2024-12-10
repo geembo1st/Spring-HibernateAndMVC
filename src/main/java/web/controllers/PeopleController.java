@@ -10,8 +10,13 @@ import web.service.UserService;
 @Controller
 @RequestMapping("/people")
 public class PeopleController {
-    @Autowired
+
     UserService userService;
+
+    @Autowired
+    public PeopleController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/new")
     public String createUser(Model model) {

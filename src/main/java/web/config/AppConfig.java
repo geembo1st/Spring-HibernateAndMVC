@@ -32,8 +32,15 @@ public class AppConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(env.getProperty("db.driver"));
         dataSource.setUrl(env.getProperty("db.url"));
-        dataSource.setUsername(env.getProperty("db.username"));
-        dataSource.setPassword(env.getProperty("db.password"));
+        String username = System.getenv("DB_USERNAME");
+        String password = System.getenv("DB_PASSWORD");
+
+        if (username == null || password == null) {
+            throw new IllegalStateException("Database credentials not found in environment variables.");
+        }
+
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         return dataSource;
     }
 
